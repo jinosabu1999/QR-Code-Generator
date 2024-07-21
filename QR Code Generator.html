@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3a86ff;
+            --secondary-color: #8338ec;
+            --background-color: #001233;
+            --text-color: #fff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        #qrcode img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .action-button {
+            flex: 1;
+            padding: 10px;
+            margin: 0 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .action-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-button {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Generator</h1>
+        <div class="input-group">
+            <label for="text">Enter text or URL:</label>
+            <input type="text" id="text" placeholder="Enter text or URL">
+        </div>
+        <div class="input-group">
+            <label for="size">QR Code Size:</label>
+            <select id="size">
+                <option value="100">Small</option>
+                <option value="200" selected>Medium</option>
+                <option value="300">Large</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="color">QR Code Color:</label>
+            <div class="color-picker">
+                <div class="color-preview" id="colorPreview"></div>
+                <input type="color" id="color" value="#000000">
+            </div>
+        </div>
+        <button onclick="generateQR()">Generate QR Code</button>
+        <div id="qrcode"></div>
+        <div class="action-buttons">
+            <button class="action-button" id="downloadBtn">Download QR Code</button>
+            <button class="action-button" id="shareBtn">Share QR Code</button>
+        </div>
+    </div>
+
+    <script>
+        let qr;
+
+        function generateQR() {
+            const text = document.getElementById('text').value;
+            const size = document.getElementById('size').value;
+            const color = document.getElementById('color').value;
+            const qrContainer = document.getElementById('qrcode');
+
+            qrContainer.innerHTML = '';
+
+            if (text) {
+                if (qr) {
+                    qr.clear();
+                }
+                qr = new QRCode(qrContainer, {
+                    text: text,
+                    width: size,
+                    height: size,
+                    colorDark: color,
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+        }
+
+        document.getElementById('color').addEventListener('input', function(e) {
+            document.getElementById('colorPreview').style.backgroundColor = e.target.value;
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            if (qrCanvas) {
+                const link = document.createElement('a');
+                link.href = qrCanvas.toDataURL('image/png');
+                link.download = 'qrcode.png';
+                link.click();
+            }
+        });
+
+        document.getElementById('shareBtn').addEventListener('click', function() {
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            if (qrCanvas) {
+                qrCanvas.toBlob(function(blob) {
+                    const file = new File([blob], 'qrcode.png', { type: 'image/png' });
+                    
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            files: [file],
+                            title: 'QR Code',
+                            text: 'Check out this QR code I generated!',
+                        }).catch(error => console.error('Error sharing:', error));
+                    } else {
+                        fallbackShare(qrCanvas.toDataURL('image/png'));
+                    }
+                });
+            }
+        });
+
+        function fallbackShare(dataUrl) {
+            const textArea = document.createElement('textarea');
+            textArea.value = dataUrl;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('QR code image copied to clipboard. You can paste it into an image editor or message.');
+        }
+
+        // Initialize color preview
+        document.getElementById('colorPreview').style.backgroundColor = document.getElementById('color').value;
+    </script>
+</body>
+</html>
