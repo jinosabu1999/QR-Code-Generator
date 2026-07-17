@@ -1,0 +1,39 @@
+const CACHE_NAME = 'qr-pro-cache-v1';
+const urlsToCache = [
+  './QR%20Code%20Generator.html',
+  './manifest.json',
+  './icon.svg',
+  'https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.js'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        if (response) {
+          return response;
+        }
+        return fetch(event.request).then(
+          function(response) {
+            // Check if we received a valid response
+            if(!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
+            }
+            var responseToCache = response.clone();
+            caches.open(CACHE_NAME)
+              .then(function(cache) {
+                cache.put(event.request, responseToCache);
+              });
+            return response;
+          }
+        );
+      })
+  );
+});
