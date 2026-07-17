@@ -1,0 +1,17 @@
+{
+  "name": "Pro QR Generator",
+  "short_name": "QR Gen",
+  "description": "Generate top-class, customizable QR codes instantly.",
+  "start_url": "./QR%20Code%20Generator.html",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
